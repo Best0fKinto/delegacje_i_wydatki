@@ -19,7 +19,7 @@ export function Layout({
           name="viewport"
           content="width=device-width, initial-scale=1.0"
         />
-        <title>My Apsp</title>
+        <title>Delegacje i wydatki</title>
         <Meta />
         <Links />
       </head>

@@ -1,20 +1,24 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Outlet } from 'react-router'
+import styled from 'styled-components'
+import './Home.css'
+import { Sidebar } from './components/sidebar';
 
-function App() {
+const S = {
+  PageWrapper: styled.main`
+    display: flex;
+    height: 100%;
+    width: 100%;
+  `,
+};
+
+function Home() {
   const [count, setCount] = useState(0)
 
   return (
-    <>
+    <S.PageWrapper>
+      <Sidebar />
       <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
       </div>
       <h1>Vite + React</h1>
       <div className="card">
@@ -28,8 +32,9 @@ function App() {
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
-    </>
+      <Outlet />
+    </S.PageWrapper>
   )
 }
 
-export default App
+export default Home
