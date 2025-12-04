@@ -1,11 +1,17 @@
 import styled from "styled-components"
 import { colors } from "src/constants/colors";
-import { Button } from "src/components/button";
 import { NavLink } from "react-router";
+import { routes } from "src/constants/routes"
+import { defaultButtonStyles } from "src/constants/styles";
+
+const sideBarRoutes = [
+  { name: 'Home', path: routes.home },
+  { name: 'Delegations', path: routes.delegations },
+]
 
 const S = {
   Sidebar: styled.aside`
-    width: 250px;
+    width: 215px;
     padding: 8px;
     background-color: ${colors.navy[2]};
     /* height: 100%; */
@@ -15,21 +21,26 @@ const S = {
     flex-direction: column;
     gap: 8px;
   `,
-  NavButton: styled(Button)`
-    height: 40px;
+  NavLink: styled(NavLink)`
+    ${defaultButtonStyles};
+    text-decoration: none;
+    color: ${colors.white};
+    padding: 12px 4px;
+
+    &:hover {
+      color: ${colors.white};
+    }
   `,
 };
-
-const SideButton = ({ name, path }: {name: string, path: string}) => {
-  return <S.NavButton>
-    <NavLink to={path}>{name}</NavLink>
-  </S.NavButton>;
-}
 
 export const Sidebar = () => {
   return <S.Sidebar>
     <S.Nav>
-      <S.NavButton>Dashboard</S.NavButton>
+      {sideBarRoutes.map(({ name, path }) => (
+        <S.NavLink key={path} to={path}>
+          {name}
+        </S.NavLink>
+      ))}
     </S.Nav>
   </S.Sidebar>;
 }

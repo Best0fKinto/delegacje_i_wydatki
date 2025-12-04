@@ -1,17 +1,28 @@
 import styled from "styled-components"
-import { colors } from "src/constants/colors";
+import { defaultButtonStyles, textButtonStyles } from "src/constants/styles";
+import type { PropsWithChildren } from "react";
 
-export const Button = styled.button`
-  border: none;
-  background-color: transparent;
-  font-family: 'Montserrat';
-  font-size: 16px;
-  padding: 4px 8px;
-  border-radius: 4px;
-  cursor: pointer;  
-  transition: background-color 0.1s ease-out;
+type ButtonVariant = 'default' | 'text';
 
-  &:hover {
-    background-color: ${colors.navy[3]};
-  }
-`;
+type Props = {
+  variant?: ButtonVariant;
+}
+
+const S = {
+  Button: styled.button<{ variant: ButtonVariant }>`
+    ${({ variant }) => {
+      switch (variant) {
+        case "text":
+          return textButtonStyles;
+        default:
+          return defaultButtonStyles;
+      }
+    }}
+  `,
+};
+
+export const Button = ({ children, variant = 'default' }: PropsWithChildren<Props>) => {
+  return <S.Button variant={variant}>
+    {children}
+  </S.Button>
+};
