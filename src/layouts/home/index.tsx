@@ -6,9 +6,9 @@ import { colors } from 'src/constants/colors';
 
 const S = {
   PageWrapper: styled.div`
+    position: relative;
     display: flex;
     flex-direction: column;
-    height: 100%;
     width: 100%;
     gap: 1px;
     background-color: ${colors.grey[1]};

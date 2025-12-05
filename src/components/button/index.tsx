@@ -6,6 +6,7 @@ type ButtonVariant = 'default' | 'text';
 
 type Props = {
   variant?: ButtonVariant;
+  className?: string;
 }
 
 const S = {
@@ -21,8 +22,10 @@ const S = {
   `,
 };
 
-export const Button = ({ children, variant = 'default' }: PropsWithChildren<Props>) => {
-  return <S.Button variant={variant}>
-    {children}
-  </S.Button>
+export const Button = ({ children, className, variant = 'default' }: PropsWithChildren<Props>) => {
+  return (
+    <S.Button className={className} variant={variant}>
+      {children}
+    </S.Button>
+  );
 };

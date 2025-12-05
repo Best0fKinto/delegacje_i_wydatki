@@ -4,10 +4,13 @@ import { Button } from "src/components/button";
 
 const S = {
   Header: styled.header`
+    position: sticky;
+    top: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 16px;
+    height: 40px;
     background-color: #f5f5f5;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     background-color: ${colors.navy[2]};

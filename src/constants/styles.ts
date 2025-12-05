@@ -7,13 +7,13 @@ export const baseButtonStyles = css`
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.1s ease-out;
-  background-color: transparent;
 `;
 
 export const defaultButtonStyles = css`
   ${baseButtonStyles};
   font-size: 16px;
   padding: 4px 8px;
+  background-color: ${colors.navy[2]};
 
   &:hover {
     background-color: ${colors.navy[3]};

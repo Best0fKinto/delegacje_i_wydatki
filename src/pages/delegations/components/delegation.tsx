@@ -1,12 +1,28 @@
 import styled from "styled-components";
 import { colors } from "src/constants/colors";
+import { Button } from "src/components/button";
 
 export type DelegationProps = {
   name: string;
   dateFrom: string;
   dateTo: string;
-  status: string;
+  status: Status;
 }
+
+type Status = "Accepted" | "Pending" | "Rejected";
+
+const getStatusColor = (status: Status) => {
+  switch (status) {
+    case "Accepted":
+      return colors.green[1];
+    case "Pending":
+      return colors.grey[3];
+    case "Rejected":
+      return colors.red[1];
+    default:
+      return colors.grey[1];
+  }
+};
 
 const S = {
   Wrapper: styled.div`
@@ -34,22 +50,41 @@ const S = {
     justify-content: space-between;
     align-items: center;
   `,
-  Status: styled.div`
+  Status: styled.div<{ $status: Status }>`
     background-color: green;
     width: fit-content;
-    padding: 4px;
+    padding: 6px;
     border-radius: 4px;
+    background-color: ${({ $status }) => getStatusColor($status)};
   `,
+  ViewDetailsButton: styled(Button)`
+    padding: 6px;
+  `
 };
 
 export const Delegation = ({ name, dateFrom, dateTo, status }: DelegationProps) => {
+  const statusMessage = (() => {
+    switch (status) {
+      case "Accepted":
+        return 'Zatwierdzona';
+      case "Pending":
+        return "Oczekuje";
+      case "Rejected":
+        return "Odrzucona";
+      default:
+        return "";
+    }
+  })();
   return (
     <S.Wrapper>
       <S.Name>{name}</S.Name>
       <S.Date>
         <S.DateFrame>{dateFrom}</S.DateFrame> - <S.DateFrame>{dateTo}</S.DateFrame>
       </S.Date>
-      <S.Status>{status}</S.Status>
+      <S.BottomWrapper>
+        <S.Status $status={status}>{statusMessage}</S.Status>
+        <S.ViewDetailsButton>View Details</S.ViewDetailsButton>
+      </S.BottomWrapper>
     </S.Wrapper>
   );
 };

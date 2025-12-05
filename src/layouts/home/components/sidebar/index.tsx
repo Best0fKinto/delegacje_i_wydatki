@@ -5,6 +5,8 @@ import { routes } from "src/constants/routes"
 import { defaultButtonStyles } from "src/constants/styles";
 import { useLocation } from "react-router";
 
+const navbarHeight = 72;
+
 const sideBarRoutes = [
   { name: 'Strona główna', path: routes.home },
   { name: 'Moje delegacje', path: routes.delegations },
@@ -12,8 +14,12 @@ const sideBarRoutes = [
 
 const S = {
   Sidebar: styled.aside`
-    width: 215px;
+    position: sticky;
+    height: calc(100vh - ${navbarHeight + 1}px);
+    top: ${navbarHeight + 1}px;
+    width: 231px;
     padding: 8px;
+    box-sizing: border-box;
     background-color: ${colors.navy[2]};
   `,
   Nav: styled.nav`
@@ -44,13 +50,15 @@ const S = {
 export const Sidebar = () => {
   const location = useLocation();
 
-  return <S.Sidebar>
-    <S.Nav>
-      {sideBarRoutes.map(({ name, path }) => (
-        <S.NavLink key={path} to={path} isSelected={path === location.pathname}>
-          {name}
-        </S.NavLink>
-      ))}
-    </S.Nav>
-  </S.Sidebar>;
+  return (
+    <S.Sidebar>
+      <S.Nav>
+        {sideBarRoutes.map(({ name, path }) => (
+          <S.NavLink key={path} to={path} isSelected={path === location.pathname}>
+            {name}
+          </S.NavLink>
+        ))}
+      </S.Nav>
+    </S.Sidebar>
+  );
 }
