@@ -5,6 +5,8 @@ import type { PropsWithChildren } from "react";
 type ButtonVariant = 'default' | 'text';
 
 type Props = {
+  onClick?: () => void;
+  type?: 'button' | 'submit' | 'reset';
   variant?: ButtonVariant;
   className?: string;
 }
@@ -22,9 +24,9 @@ const S = {
   `,
 };
 
-export const Button = ({ children, className, variant = 'default' }: PropsWithChildren<Props>) => {
+export const Button = ({ children, onClick, type = 'button', className, variant = 'default' }: PropsWithChildren<Props>) => {
   return (
-    <S.Button className={className} variant={variant}>
+    <S.Button onClick={onClick} type={type} className={className} variant={variant}>
       {children}
     </S.Button>
   );
