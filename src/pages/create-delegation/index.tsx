@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useRef } from "react";
+import { useState } from "react";
 import { colors } from "src/constants/colors";
 import { FormGroup, TextField } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -8,9 +8,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { Button } from "src/components/button";
 import plus from "src/assets/plus-white.svg";
 import { Expense, ExpenseProps } from "../delegations/components/expense";
-import { Dialog, DialogContent, DialogRef, DialogHeader } from "src/components/dialog";
-import { showDialog, closeDialog } from "src/components/dialog/utils";
-// import dayjs from "dayjs";
+import { Dialog, DialogContent, DialogHeader } from "src/components/dialog";
 
 const mockExpenses: ExpenseProps[] = [
   {
@@ -68,7 +66,6 @@ const S = {
   `,
   DatePicker: styled(DatePicker)`
     flex: 1;
-    z-index: 1500;
   `,
   ExpensesHeadingWrapper: styled.div`
     display: flex;
@@ -77,7 +74,6 @@ const S = {
     gap: 8px;
   `,
   ExpensesHeading: styled.h2`
-    /* margin: 0; */
     text-align: center;
     color: ${colors.grey[8]};
   `,
@@ -100,10 +96,65 @@ const S = {
     padding: 0;
     margin: 0;
   `,
+  FileInputWrapper: styled.div<{ $withGap: boolean }>`
+    display: flex;
+    flex-direction: column;
+    gap: ${({ $withGap }) => ($withGap ? '8px' : '0')};
+    padding: 8px;
+    background-color: ${colors.grey[1]};
+    box-sizing: border-box;
+  `,
+  FileInputLabel: styled.label`
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 16px;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+    background-color: ${colors.blue[1]};
+  `,
+  HiddenFileInput: styled.input`
+    display: none;
+  `,
+  FileWrapper: styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    overflow: hidden;
+  `,
+  FileName: styled.span`
+    color: black;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    max-width: 280px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  `,
+  DeleteReceiptButton: styled(Button)`
+    padding: 6px;
+    background-color: ${colors.red[1]};
+  `
 }
 
 export default function AddDelegationPage() {
-  const dialogRef = useRef<DialogRef>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+    }
+  };
+
+  const onCloseDialog = () => {
+    setSelectedFile(null);
+    setIsDialogOpen(false);
+  }
 
   return (
     <S.Wrapper>
@@ -126,7 +177,7 @@ export default function AddDelegationPage() {
           <S.DataGroup>
             <S.ExpensesHeadingWrapper>
               <S.ExpensesHeading>Wydatki</S.ExpensesHeading>
-              <S.Button onClick={() => showDialog(dialogRef)}>
+              <S.Button onClick={() => setIsDialogOpen(true)}>
                 <S.PlusIcon src={plus} alt="Add" />
               </S.Button>
             </S.ExpensesHeadingWrapper>
@@ -139,8 +190,8 @@ export default function AddDelegationPage() {
             </S.ExpenseList>
           </S.DataGroup>
         </S.Form>
-        <Dialog ref={dialogRef}>
-          <DialogHeader title="Nowy wydatek" onClose={() => closeDialog(dialogRef)} />
+        <Dialog open={isDialogOpen} onClose={onCloseDialog}>
+          <DialogHeader title="Dodaj wydatek" onClose={onCloseDialog} />
           <DialogContent>
             <S.DataGroup>
               <TextField label="Tytuł" fullWidth />
@@ -150,7 +201,26 @@ export default function AddDelegationPage() {
               </S.FormGroup>
               <S.DatePicker label="Data" disableFuture={true} />
               <TextField label="Opis" multiline rows={4} fullWidth />
-              <S.Button type="submit" onClick={() => closeDialog(dialogRef)}>Dodaj wydatek</S.Button>
+              <S.FileInputWrapper $withGap={!!selectedFile}>
+                <S.FileInputLabel htmlFor="receipt-upload">
+                  Wybierz paragon
+                </S.FileInputLabel>
+                <S.HiddenFileInput
+                  id="receipt-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                />
+                <S.FileWrapper>
+                  {selectedFile && <S.FileName>{selectedFile.name}</S.FileName>}
+                  {selectedFile && (
+                    <S.DeleteReceiptButton onClick={() => setSelectedFile(null)}>
+                      Usuń
+                    </S.DeleteReceiptButton>
+                  )}
+                </S.FileWrapper>
+            </S.FileInputWrapper>
+              <S.Button type="submit" onClick={() => setIsDialogOpen(false)}>Dodaj wydatek</S.Button>
             </S.DataGroup>
           </DialogContent>
         </Dialog>
