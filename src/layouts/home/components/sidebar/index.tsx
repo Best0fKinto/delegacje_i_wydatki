@@ -8,7 +8,6 @@ import { useLocation } from "react-router";
 const navbarHeight = 72;
 
 const sideBarRoutes = [
-  { name: 'Strona główna', path: routes.home },
   { name: 'Moje delegacje', path: routes.delegations },
   { name: 'Utwórz delegację', path: routes.createDelegation },
 ]

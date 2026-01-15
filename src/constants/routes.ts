@@ -20,7 +20,7 @@
 // }));
 
 export const routes = {
-  home: '/',
+  login: '/login',
   delegations: '/delegations',
   createDelegation: '/delegations/create',
 }

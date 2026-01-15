@@ -3,18 +3,17 @@ import {
   layout,
   index,
   route,
-  // route,
 } from "@react-router/dev/routes";
 import { routes } from "./constants/routes";
 
-// export default [
-//   // * matches all URLs, the ? makes it optional so it will match / as well
-//   route(routes.home.path, routes.home.file),
-// ] satisfies RouteConfig;
-
 export default [
-  layout('./layouts/home/index.tsx', [
-    index('./pages/home-page/index.tsx'),
+  // Login route (public, no layout)
+  route(routes.login, './pages/login/index.tsx'),
+  
+  // Protected routes with layout
+  layout('./layouts/protected/index.tsx', [
+    // Redirect root to delegations
+    index('./pages/root-redirect/index.tsx'),
     route(routes.delegations, './pages/delegations/index.tsx'),
     route(routes.createDelegation, './pages/create-delegation/index.tsx'),
   ]),

@@ -5,6 +5,11 @@ import {
   Scripts,
   ScrollRestoration,
 } from "react-router";
+import type { LinksFunction } from "react-router";
+
+export const links: LinksFunction = () => [
+  { rel: "icon", href: "/vite.svg", type: "image/svg+xml" },
+];
 
 export function Layout({
   children,

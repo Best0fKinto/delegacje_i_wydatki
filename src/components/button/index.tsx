@@ -9,6 +9,7 @@ type Props = {
   type?: 'button' | 'submit' | 'reset';
   variant?: ButtonVariant;
   className?: string;
+  disabled?: boolean;
 }
 
 const S = {
@@ -24,9 +25,9 @@ const S = {
   `,
 };
 
-export const Button = ({ children, onClick, type = 'button', className, variant = 'default' }: PropsWithChildren<Props>) => {
+export const Button = ({ children, onClick, type = 'button', className, variant = 'default', disabled }: PropsWithChildren<Props>) => {
   return (
-    <S.Button onClick={onClick} type={type} className={className} variant={variant}>
+    <S.Button onClick={onClick} type={type} className={className} variant={variant} disabled={disabled}>
       {children}
     </S.Button>
   );

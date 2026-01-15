@@ -9,23 +9,10 @@ import { Button } from "src/components/button";
 import plus from "src/assets/plus-white.svg";
 import { Expense, ExpenseProps } from "../delegations/components/expense";
 import { Dialog, DialogContent, DialogHeader } from "src/components/dialog";
+import { delegationsApi } from "src/lib/api/delegations";
+import type { Dayjs } from "dayjs";
 
-const mockExpenses: ExpenseProps[] = [
-  {
-    title: "Lunch with client",
-    amount: 45.50,
-    currency: "USD",
-    date: "2023-10-12",
-    description: "Business lunch at Italian restaurant"
-  },
-  {
-    title: "Taxi to airport",
-    amount: 30.00,
-    currency: "USD",
-    date: "2023-10-13",
-    description: "Taxi ride from office to airport"
-  }
-];
+const mockExpenses: ExpenseProps[] = [];
 
 const S = {
   Wrapper: styled.section`
@@ -137,12 +124,21 @@ const S = {
   DeleteReceiptButton: styled(Button)`
     padding: 6px;
     background-color: ${colors.red[1]};
-  `
+  `,
+  ErrorMessage: styled.p`
+    color: ${colors.red[1]};
+    font-size: 14px;
+    margin: 0;
+  `,
 }
 
 export default function AddDelegationPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [startDate, setStartDate] = useState<Dayjs | null>(null);
+  const [endDate, setEndDate] = useState<Dayjs | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -156,13 +152,43 @@ export default function AddDelegationPage() {
     setIsDialogOpen(false);
   }
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!startDate || !endDate) {
+      setError('Proszę wybrać daty delegacji');
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      setError(null);
+      
+      const delegation = await delegationsApi.createDelegation({
+        start_date: startDate.format('YYYY-MM-DD'),
+        end_date: endDate.format('YYYY-MM-DD'),
+        status: 'draft',
+      });
+
+      console.log('Delegation created:', delegation);
+      alert('Delegacja została utworzona pomyślnie!');
+      
+      // Reset form
+      setStartDate(null);
+      setEndDate(null);
+    } catch (err: any) {
+      setError(err?.data?.message || 'Nie udało się utworzyć delegacji');
+      console.error('Failed to create delegation:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <S.Wrapper>
       <S.Heading>Utwórz delegację</S.Heading>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <S.Form onSubmit={(e) => {
-          e.preventDefault();
-        }}>
+        <S.Form onSubmit={handleSubmit}>
           <S.DataGroup>
             <TextField label="Nazwa delegacji" />
             <S.FormGroup>
@@ -170,14 +196,25 @@ export default function AddDelegationPage() {
               <S.RowTextField label="Miasto" />
             </S.FormGroup>
             <S.FormGroup>
-              <S.DatePicker label="Data od" disableFuture={true} />
-              <S.DatePicker label="Data do" disableFuture={true} />
+              <S.DatePicker 
+                label="Data od" 
+                value={startDate}
+                onChange={(newValue) => setStartDate(newValue)}
+                disableFuture={true} 
+              />
+              <S.DatePicker 
+                label="Data do" 
+                value={endDate}
+                onChange={(newValue) => setEndDate(newValue)}
+                disableFuture={true} 
+              />
             </S.FormGroup>
+            {error && <S.ErrorMessage>{error}</S.ErrorMessage>}
           </S.DataGroup>
           <S.DataGroup>
             <S.ExpensesHeadingWrapper>
               <S.ExpensesHeading>Wydatki</S.ExpensesHeading>
-              <S.Button onClick={() => setIsDialogOpen(true)}>
+              <S.Button type="button" onClick={() => setIsDialogOpen(true)}>
                 <S.PlusIcon src={plus} alt="Add" />
               </S.Button>
             </S.ExpensesHeadingWrapper>
@@ -189,6 +226,9 @@ export default function AddDelegationPage() {
               ))}
             </S.ExpenseList>
           </S.DataGroup>
+          <S.Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Tworzenie...' : 'Utwórz delegację'}
+          </S.Button>
         </S.Form>
         <Dialog open={isDialogOpen} onClose={onCloseDialog}>
           <DialogHeader title="Dodaj wydatek" onClose={onCloseDialog} />

@@ -1,6 +1,10 @@
 import styled from "styled-components";
+import { useState } from "react";
+import { useNavigate } from "react-router";
 import { colors } from "src/constants/colors";
 import { Button } from "src/components/button";
+import { authApi } from "src/lib/api/auth";
+import { routes } from "src/constants/routes";
 
 const S = {
   Header: styled.header`
@@ -23,8 +27,34 @@ const S = {
 };
 
 export const Header = () => {
+  const navigate = useNavigate();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    
+    try {
+      // authApi.logout() will:
+      // 1. Try to call POST /api/auth/logout (best effort)
+      // 2. ALWAYS clear token from localStorage
+      await authApi.logout();
+    } catch (error) {
+      // This shouldn't happen as authApi.logout() catches all errors
+      console.error('Unexpected logout error:', error);
+    } finally {
+      // Redirect to login page after logout
+      navigate(routes.login, { replace: true });
+    }
+  };
+
   return <S.Header>
     <S.Heading>Delegacje</S.Heading>
-    <Button variant="text">Wyloguj</Button>
+    <Button 
+      variant="text" 
+      onClick={handleLogout}
+      disabled={isLoggingOut}
+    >
+      {isLoggingOut ? 'Wylogowywanie...' : 'Wyloguj'}
+    </Button>
   </S.Header>;
 }
