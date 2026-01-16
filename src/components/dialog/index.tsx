@@ -7,6 +7,7 @@ type DialogProps = {
   open: boolean;
   onClose?: () => void;
   children?: React.ReactNode;
+  className?: string;
 };
 
 type DialogHeaderProps = {
@@ -64,11 +65,15 @@ export const DialogHeader = ({ title, onClose }: DialogHeaderProps) => {
 
 export const DialogContent = styled.div`
   padding: 16px;
+  box-sizing: border-box;
 `;
 
-export const Dialog = ({ children, open, onClose }: DialogProps) => {
+export const Dialog = ({ children, open, onClose, className }: DialogProps) => {
   return (
-    <MUIDialog open={open} onClose={onClose}>
+    <MUIDialog 
+      open={open} 
+      onClose={onClose}
+    >
       {children}
     </MUIDialog>
   );
