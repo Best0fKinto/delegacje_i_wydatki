@@ -1,14 +1,17 @@
 import styled from "styled-components";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader } from "src/components/dialog";
-import { FormGroup, TextField } from "@mui/material";
+import { FormGroup, TextField, MenuItem } from "@mui/material";
 import { colors } from "src/constants/colors";
 import { DatePicker } from "@mui/x-date-pickers";
 import { Button } from "src/components/button";
+import type { Dayjs } from "dayjs";
+import { ExpenseFormData } from "src/lib/api";
 
 type Props = {
   isDialogOpen: boolean;
   onCloseDialog: () => void;
+  onAddExpense: (expense: ExpenseFormData) => void;
 }
 
 const S = {
@@ -84,25 +87,103 @@ const S = {
   `,
 };
 
-export const ExpenseDialog = ({ isDialogOpen, onCloseDialog }: Props) => {
+export const ExpenseDialog = ({ isDialogOpen, onCloseDialog, onAddExpense }: Props) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [explanation, setExplanation] = useState('');
   const [amount, setAmount] = useState<number | string>('');
+  const [currencyId, setCurrencyId] = useState<number>(1);
+  const [categoryId, setCategoryId] = useState<number>(1); 
+  const [payedAt, setPayedAt] = useState<Dayjs | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = () => {
+    // Validation
+    if (!amount || Number(amount) <= 0) {
+      setError('Kwota musi być większa od 0');
+      return;
+    }
+
+    if (!explanation.trim()) {
+      setError('Opis jest wymagany');
+      return;
+    }
+
+    const expenseData: ExpenseFormData = {
+      explanation: explanation.trim(),
+      amount: Number(amount),
+      currency_id: currencyId,
+      category_id: categoryId,
+      payed_at: payedAt?.format('YYYY-MM-DD'),
+    };
+
+    onAddExpense(expenseData);
+    
+    // Reset form
+    setExplanation('');
+    setAmount('');
+    setCurrencyId(1);
+    setCategoryId(1);
+    setPayedAt(null);
+    setSelectedFile(null);
+    setError(null);
+    onCloseDialog();
+  };
 
   return (
     <Dialog open={isDialogOpen} onClose={onCloseDialog}>
       <DialogHeader title="Dodaj wydatek" onClose={onCloseDialog} />
       <DialogContent>
         <S.DataGroup>
-          <TextField label="Tytuł" fullWidth />
+          <TextField 
+            label="Opis" 
+            fullWidth 
+            value={explanation}
+            onChange={(e) => setExplanation(e.target.value)}
+            required
+          />
           <S.FormGroup>
-            <S.RowTextField label="Kwota" type="number" />
-            <S.RowTextField label="Waluta" />
+            <S.RowTextField 
+              label="Kwota" 
+              type="number" 
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              required
+            />
+            <S.RowTextField 
+              label="Waluta" 
+              select
+              value={currencyId}
+              onChange={(e) => setCurrencyId(Number(e.target.value))}
+            >
+              <MenuItem value={1}>PLN</MenuItem>
+              <MenuItem value={2}>EUR</MenuItem>
+              <MenuItem value={3}>USD</MenuItem>
+              <MenuItem value={4}>GBP</MenuItem>
+            </S.RowTextField>
           </S.FormGroup>
-          <S.DatePicker label="Data" disableFuture={true} />
-          <TextField label="Opis" multiline rows={4} fullWidth />
+          <S.FormGroup>
+            <S.RowTextField 
+              label="Kategoria" 
+              select
+              value={categoryId}
+              onChange={(e) => setCategoryId(Number(e.target.value))}
+            >
+              <MenuItem value={1}>Hotel</MenuItem>
+              <MenuItem value={2}>Transport</MenuItem>
+              <MenuItem value={3}>Food</MenuItem>
+              <MenuItem value={4}>Conference</MenuItem>
+              <MenuItem value={5}>Other</MenuItem>
+            </S.RowTextField>
+            <S.DatePicker 
+              label="Data" 
+              disableFuture={true}
+              value={payedAt}
+              onChange={(newValue) => setPayedAt(newValue)}
+            />
+          </S.FormGroup>
           <S.FileInputWrapper $withGap={!!selectedFile}>
             <S.FileInputLabel htmlFor="receipt-upload">
-              Wybierz paragon
+              Wybierz paragon (opcjonalne)
             </S.FileInputLabel>
             <S.HiddenFileInput
               id="receipt-upload"
@@ -121,10 +202,11 @@ export const ExpenseDialog = ({ isDialogOpen, onCloseDialog }: Props) => {
                 </S.DeleteReceiptButton>
               )}
             </S.FileWrapper>
-        </S.FileInputWrapper>
-          <S.Button type="submit" onClick={() => {
-
-          }}>Dodaj wydatek</S.Button>
+          </S.FileInputWrapper>
+          {error && <S.ErrorMessage>{error}</S.ErrorMessage>}
+          <S.Button type="button" onClick={handleSubmit}>
+            Dodaj wydatek
+          </S.Button>
         </S.DataGroup>
       </DialogContent>
     </Dialog>
