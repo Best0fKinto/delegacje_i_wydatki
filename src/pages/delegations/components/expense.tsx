@@ -34,10 +34,10 @@ export type ExpenseProps = {
   amount: number;
   currency: string;
   date: string;
-  description: string;
+  onDelete?: () => void;
 };
 
-export const Expense = ({ title, amount, currency, date, description }: ExpenseProps) => {
+export const Expense = ({ title, amount, currency, date, onDelete }: ExpenseProps) => {
   return (
     <S.Wrapper>
       <S.Title>{title}</S.Title>

@@ -8,11 +8,10 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { Button } from "src/components/button";
 import plus from "src/assets/plus-white.svg";
 import { Expense, ExpenseProps } from "../delegations/components/expense";
-import { Dialog, DialogContent, DialogHeader } from "src/components/dialog";
 import { delegationsApi } from "src/lib/api/delegations";
 import type { Dayjs } from "dayjs";
-
-const mockExpenses: ExpenseProps[] = [];
+import { ExpenseDialog } from "./expense-dialog";
+import { ExpenseFormData } from "src/lib/api/delegations";
 
 const S = {
   Wrapper: styled.section`
@@ -137,8 +136,13 @@ export default function AddDelegationPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
+  const [name, setName] = useState('');
+  const [country, setCountry] = useState('');
+  const [city, setCity] = useState('');
+  const [purpose, setPurpose] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [expenses, setExpenses] = useState<ExpenseFormData[]>([]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -152,11 +156,34 @@ export default function AddDelegationPage() {
     setIsDialogOpen(false);
   }
 
+  const handleAddExpense = (expense: ExpenseFormData) => {
+    setExpenses([...expenses, expense]);
+  };
+
+  const handleRemoveExpense = (index: number) => {
+    setExpenses(expenses.filter((_, i) => i !== index));
+  };
+
+  const getCurrencyName = (currencyId: number): string => {
+    const currencies: Record<number, string> = {
+      1: 'PLN',
+      2: 'EUR',
+      3: 'USD',
+      4: 'GBP',
+    };
+    return currencies[currencyId] || 'PLN';
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!startDate || !endDate) {
       setError('Proszę wybrać daty delegacji');
+      return;
+    }
+
+    if (!name.trim()) {
+      setError('Nazwa delegacji jest wymagana');
       return;
     }
 
@@ -167,7 +194,12 @@ export default function AddDelegationPage() {
       const delegation = await delegationsApi.createDelegation({
         start_date: startDate.format('YYYY-MM-DD'),
         end_date: endDate.format('YYYY-MM-DD'),
+        name: name.trim(),
+        country: country.trim() || undefined,
+        city: city.trim() || undefined,
+        purpose: purpose.trim() || undefined,
         status: 'draft',
+        expenses: expenses.length > 0 ? expenses : undefined,
       });
 
       console.log('Delegation created:', delegation);
@@ -176,6 +208,11 @@ export default function AddDelegationPage() {
       // Reset form
       setStartDate(null);
       setEndDate(null);
+      setName('');
+      setCountry('');
+      setCity('');
+      setPurpose('');
+      setExpenses([]);
     } catch (err: any) {
       setError(err?.data?.message || 'Nie udało się utworzyć delegacji');
       console.error('Failed to create delegation:', err);
@@ -190,11 +227,33 @@ export default function AddDelegationPage() {
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <S.Form onSubmit={handleSubmit}>
           <S.DataGroup>
-            <TextField label="Nazwa delegacji" />
+            <TextField 
+              label="Nazwa delegacji" 
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              fullWidth
+            />
             <S.FormGroup>
-              <S.RowTextField label="Kraj" />
-              <S.RowTextField label="Miasto" />
+              <S.RowTextField 
+                label="Kraj" 
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+              />
+              <S.RowTextField 
+                label="Miasto" 
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+              />
             </S.FormGroup>
+            <TextField 
+              label="Cel delegacji" 
+              value={purpose}
+              onChange={(e) => setPurpose(e.target.value)}
+              multiline
+              rows={3}
+              fullWidth
+            />
             <S.FormGroup>
               <S.DatePicker 
                 label="Data od" 
@@ -219,9 +278,14 @@ export default function AddDelegationPage() {
               </S.Button>
             </S.ExpensesHeadingWrapper>
             <S.ExpenseList>
-              {mockExpenses.map((expense, index) => (
+              {expenses.map((expense, index) => (
                 <li key={index}>
-                  <Expense {...expense} />
+                    <Expense 
+                      title={expense.explanation}
+                      amount={expense.amount}
+                      currency={getCurrencyName(expense.currency_id)}
+                      date={expense.payed_at || 'Nie podano'}
+                    />
                 </li>
               ))}
             </S.ExpenseList>
@@ -230,40 +294,14 @@ export default function AddDelegationPage() {
             {isSubmitting ? 'Tworzenie...' : 'Utwórz delegację'}
           </S.Button>
         </S.Form>
-        <Dialog open={isDialogOpen} onClose={onCloseDialog}>
-          <DialogHeader title="Dodaj wydatek" onClose={onCloseDialog} />
-          <DialogContent>
-            <S.DataGroup>
-              <TextField label="Tytuł" fullWidth />
-              <S.FormGroup>
-                <S.RowTextField label="Kwota" type="number" />
-                <S.RowTextField label="Waluta" />
-              </S.FormGroup>
-              <S.DatePicker label="Data" disableFuture={true} />
-              <TextField label="Opis" multiline rows={4} fullWidth />
-              <S.FileInputWrapper $withGap={!!selectedFile}>
-                <S.FileInputLabel htmlFor="receipt-upload">
-                  Wybierz paragon
-                </S.FileInputLabel>
-                <S.HiddenFileInput
-                  id="receipt-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                />
-                <S.FileWrapper>
-                  {selectedFile && <S.FileName>{selectedFile.name}</S.FileName>}
-                  {selectedFile && (
-                    <S.DeleteReceiptButton onClick={() => setSelectedFile(null)}>
-                      Usuń
-                    </S.DeleteReceiptButton>
-                  )}
-                </S.FileWrapper>
-            </S.FileInputWrapper>
-              <S.Button type="submit" onClick={() => setIsDialogOpen(false)}>Dodaj wydatek</S.Button>
-            </S.DataGroup>
-          </DialogContent>
-        </Dialog>
+        <ExpenseDialog 
+          isDialogOpen={isDialogOpen} 
+          onCloseDialog={onCloseDialog}
+          onAddExpense={(expense: ExpenseFormData) => {
+            handleAddExpense(expense);
+            setIsDialogOpen(false);
+          }}
+        />
       </LocalizationProvider>
     </S.Wrapper>
   );

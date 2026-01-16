@@ -6,6 +6,10 @@ export interface Delegation {
   start_date: string; // YYYY-MM-DD
   end_date: string; // YYYY-MM-DD
   status: string;
+  country?: string;
+  city?: string;
+  name?: string;
+  purpose?: string;
   user_id?: number;
   created_at?: string;
   expenses?: Expense[];
@@ -14,17 +18,29 @@ export interface Delegation {
 export interface Expense {
   id: number;
   amount: number;
-  pln_amount: number;
   explanation?: string;
   payed_at?: string;
   currency_id?: number;
   category_id?: number;
 }
 
+export interface ExpenseFormData {
+  explanation: string;
+  amount: number;
+  currency_id: number;
+  category_id: number;
+  payed_at?: string;
+}
+
 export interface CreateDelegationRequest {
   start_date: string; // YYYY-MM-DD
   end_date: string; // YYYY-MM-DD
+  name?: string;
+  country?: string;
+  city?: string;
+  purpose?: string;
   status?: string; // optional, default: 'draft'
+  expenses?: ExpenseFormData[];
 }
 
 export interface UpdateDelegationRequest {
