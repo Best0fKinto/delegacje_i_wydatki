@@ -7,7 +7,7 @@ import { DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { Button } from "src/components/button";
 import plus from "src/assets/plus-white.svg";
-import { Expense, ExpenseProps } from "../delegations/components/expense";
+import { Expense } from "../delegations/components/expense";
 import { delegationsApi } from "src/lib/api/delegations";
 import type { Dayjs } from "dayjs";
 import { ExpenseDialog } from "./expense-dialog";
@@ -82,44 +82,6 @@ const S = {
     padding: 0;
     margin: 0;
   `,
-  FileInputWrapper: styled.div<{ $withGap: boolean }>`
-    display: flex;
-    flex-direction: column;
-    gap: ${({ $withGap }) => ($withGap ? '8px' : '0')};
-    padding: 8px;
-    background-color: ${colors.grey[1]};
-    box-sizing: border-box;
-  `,
-  FileInputLabel: styled.label`
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px 16px;
-    color: white;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.2s;
-    background-color: ${colors.blue[1]};
-  `,
-  HiddenFileInput: styled.input`
-    display: none;
-  `,
-  FileWrapper: styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    overflow: hidden;
-  `,
-  FileName: styled.span`
-    color: black;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 14px;
-    max-width: 280px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  `,
   DeleteReceiptButton: styled(Button)`
     padding: 6px;
     background-color: ${colors.red[1]};
@@ -129,11 +91,22 @@ const S = {
     font-size: 14px;
     margin: 0;
   `,
+  SubmitWrapper: styled.div`
+    display: flex;
+    justify-content: center;
+  `,
+  SubmitButton: styled(Button)`
+    width: fit-content;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 22px;
+    padding: 14px;
+  `,
 }
 
 export default function AddDelegationPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
   const [name, setName] = useState('');
@@ -144,15 +117,7 @@ export default function AddDelegationPage() {
   const [error, setError] = useState<string | null>(null);
   const [expenses, setExpenses] = useState<ExpenseFormData[]>([]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-    }
-  };
-
   const onCloseDialog = () => {
-    setSelectedFile(null);
     setIsDialogOpen(false);
   }
 
@@ -285,14 +250,17 @@ export default function AddDelegationPage() {
                       amount={expense.amount}
                       currency={getCurrencyName(expense.currency_id)}
                       date={expense.payed_at || 'Nie podano'}
+                      onDelete={() => handleRemoveExpense(index)}
                     />
                 </li>
               ))}
             </S.ExpenseList>
           </S.DataGroup>
-          <S.Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Tworzenie...' : 'Utwórz delegację'}
-          </S.Button>
+          <S.SubmitWrapper>
+            <S.SubmitButton type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Tworzenie...' : 'Utwórz delegację'}
+            </S.SubmitButton>
+          </S.SubmitWrapper>
         </S.Form>
         <ExpenseDialog 
           isDialogOpen={isDialogOpen} 

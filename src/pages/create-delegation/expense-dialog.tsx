@@ -85,6 +85,9 @@ const S = {
     align-items: center;
     padding: 8px;
   `,
+  DialogContent: styled(DialogContent)`
+    width: 500px;
+  `,
 };
 
 export const ExpenseDialog = ({ isDialogOpen, onCloseDialog, onAddExpense }: Props) => {
@@ -132,7 +135,7 @@ export const ExpenseDialog = ({ isDialogOpen, onCloseDialog, onAddExpense }: Pro
   return (
     <Dialog open={isDialogOpen} onClose={onCloseDialog}>
       <DialogHeader title="Dodaj wydatek" onClose={onCloseDialog} />
-      <DialogContent>
+      <S.DialogContent>
         <S.DataGroup>
           <TextField 
             label="Opis" 
@@ -208,7 +211,7 @@ export const ExpenseDialog = ({ isDialogOpen, onCloseDialog, onAddExpense }: Pro
             Dodaj wydatek
           </S.Button>
         </S.DataGroup>
-      </DialogContent>
+      </S.DialogContent>
     </Dialog>
   )
 }
