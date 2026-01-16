@@ -29,13 +29,15 @@ export interface User {
   id: number;
   username: string;
   email: string;
+  role: 'employee' | 'manager' | 'admin';
+  manager_id?: number;
   is_active?: boolean;
   created_at?: string;
 }
 
 export interface MeResponse {
   status: 'success';
-  user: User;
+  employee: User;
 }
 
 export interface VerifyResponse {
@@ -79,7 +81,9 @@ export const authApi = {
    * Requires: Authorization header
    */
   async me(): Promise<MeResponse> {
-    return apiClient.get<MeResponse>('/auth/me');
+    const response = await apiClient.get<MeResponse>('/auth/me');
+    // Backend returns 'employee' field, map it to maintain consistency
+    return response;
   },
 
   /**

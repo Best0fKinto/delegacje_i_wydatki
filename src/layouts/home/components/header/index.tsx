@@ -5,6 +5,7 @@ import { colors } from "src/constants/colors";
 import { Button } from "src/components/button";
 import { authApi } from "src/lib/api/auth";
 import { routes } from "src/constants/routes";
+import { useAuth } from "src/contexts/AuthContext";
 
 const S = {
   Header: styled.header`
@@ -28,6 +29,7 @@ const S = {
 
 export const Header = () => {
   const navigate = useNavigate();
+  const { clearAuth } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
@@ -42,6 +44,8 @@ export const Header = () => {
       // This shouldn't happen as authApi.logout() catches all errors
       console.error('Unexpected logout error:', error);
     } finally {
+      // Clear auth context (user state)
+      clearAuth();
       // Redirect to login page after logout
       navigate(routes.login, { replace: true });
     }

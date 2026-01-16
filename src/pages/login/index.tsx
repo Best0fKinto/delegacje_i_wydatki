@@ -7,6 +7,7 @@ import { Button } from "src/components/button";
 import { authApi } from "src/lib/api/auth";
 import { routes } from "src/constants/routes";
 import { getToken } from "src/lib/apiClient";
+import { useAuth } from "src/contexts/AuthContext";
 
 const S = {
   Wrapper: styled.div`
@@ -61,6 +62,7 @@ const S = {
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const { refetchUser } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -92,8 +94,21 @@ export default function LoginPage() {
         password: password,
       });
 
-      // Redirect to delegations after successful login
-      navigate(routes.delegations);
+      // Fetch user data to populate AuthContext
+      await refetchUser();
+      
+      // Get user role to determine redirect
+      const meResponse = await authApi.me();
+      const userRole = meResponse.employee.role;
+      
+      // Redirect based on user role
+      if (userRole === 'admin') {
+        navigate(routes.adminDashboard);
+      } else if (userRole === 'manager') {
+        navigate(routes.managerDashboard);
+      } else {
+        navigate(routes.delegations);
+      }
     } catch (err: any) {
       console.error("Login failed:", err);
       

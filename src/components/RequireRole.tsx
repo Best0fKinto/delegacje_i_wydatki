@@ -5,8 +5,9 @@ import styled from "styled-components";
 import { colors } from "src/constants/colors";
 import { useAuth } from "src/contexts/AuthContext";
 
-interface ProtectedRouteProps {
+interface RequireRoleProps {
   children: React.ReactNode;
+  allowedRoles: Array<'employee' | 'manager' | 'admin'>;
 }
 
 const LoadingWrapper = styled.div`
@@ -19,27 +20,39 @@ const LoadingWrapper = styled.div`
 `;
 
 /**
- * ProtectedRoute component
- * Checks if user is authenticated by verifying token with backend
+ * RequireRole component
+ * Checks if user has the required role to access the route
  * Shows loading state while checking
- * Redirects to login if not authenticated
+ * Redirects based on authorization status
  * Uses AuthContext to avoid redundant API calls
  */
-export function ProtectedRoute({ children }: ProtectedRouteProps) {
+export function RequireRole({ children, allowedRoles }: RequireRoleProps) {
   const location = useLocation();
   const { user, isLoading, error } = useAuth();
   const token = getToken();
 
   // Show loading state while checking authentication
   if (isLoading) {
-    return <LoadingWrapper>Sprawdzanie autoryzacji...</LoadingWrapper>;
+    return <LoadingWrapper>Sprawdzanie uprawnień...</LoadingWrapper>;
   }
 
-  // Redirect to login if no token or authentication failed
+  // Redirect to login if no token or error
   if (!token || error || !user) {
     return <Navigate to={routes.login} state={{ from: location }} replace />;
   }
 
-  // Render children if authenticated
+  // Check if user has required role
+  if (!allowedRoles.includes(user.role)) {
+    // Redirect based on actual role
+    if (user.role === 'admin') {
+      return <Navigate to={routes.adminDashboard} replace />;
+    } else if (user.role === 'manager') {
+      return <Navigate to={routes.managerDashboard} replace />;
+    } else {
+      return <Navigate to={routes.delegations} replace />;
+    }
+  }
+
+  // Render children if authorized
   return <>{children}</>;
 }

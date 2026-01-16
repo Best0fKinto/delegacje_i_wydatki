@@ -43,10 +43,62 @@ To enable test user creation, add to `Delegation_main/.env`:
 DEV_SEED=true
 ```
 
-Then restart the backend. The following test user will be created:
+Then restart the backend. The following test users will be created:
 
-- **Email:** `adamas@example.com`
-- **Password:** `12345678`
+- **Employee:**
+  - Email: `pracownik@example.com`
+  - Password: `12345678`
+  - Role: `employee`
+
+- **Manager:**
+  - Email: `menedzer@example.com`
+  - Password: `12345678`
+  - Role: `manager`
+
+- **Admin:**
+  - Email: `admin@example.com`
+  - Password: `12345678`
+  - Role: `admin`
+
+### Smoke Tests
+
+After starting both backend and frontend, perform these basic tests:
+
+1. **Employee Login & Logout:**
+   - Go to http://127.0.0.1:5173
+   - Should redirect to `/login`
+   - Login with `pracownik@example.com` / `12345678`
+   - Should redirect to `/delegations` (employee dashboard)
+   - Sidebar should show: "Moje delegacje" and "Utwórz delegację"
+   - Can access `/delegations/create`
+   - Click "Wyloguj" button
+   - Should redirect back to `/login`
+
+2. **Manager Login & Access:**
+   - Login with `menedzer@example.com` / `12345678`
+   - Should redirect to `/manager/dashboard`
+   - Sidebar should show ONLY: "Moje delegacje" (no "Utwórz delegację")
+   - Try accessing `/delegations/create` manually - should redirect to `/manager`
+   - Try accessing `/admin/dashboard` - should be redirected back to `/manager/dashboard`
+   - Logout
+
+3. **Admin Login & Access:**
+   - Login with `admin@example.com` / `12345678`
+   - Should redirect to `/admin/dashboard`
+   - Sidebar should show ONLY: "Moje delegacje" (no "Utwórz delegację")
+   - Try accessing `/delegations/create` manually - should redirect to `/admin`
+   - Can access both `/admin/*` and `/manager/*` routes
+   - Logout
+
+4. **Unauthorized Access:**
+   - Without logging in, try to access `/delegations`
+   - Should redirect to `/login`
+   - After redirect, login form should be visible
+
+5. **Create Delegation Access Control:**
+   - Only employees can create delegations
+   - Admins and managers cannot access `/delegations/create` (redirected to their dashboards)
+   - "Utwórz delegację" link only visible in sidebar for employee role
 
 **To disable seed:** Remove or set `DEV_SEED=false` in your local `.env` file.
 

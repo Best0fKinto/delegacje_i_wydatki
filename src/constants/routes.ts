@@ -23,5 +23,16 @@ export const routes = {
   login: '/login',
   delegations: '/delegations',
   createDelegation: '/delegations/create',
+  
+  // Manager routes
+  managerDashboard: '/manager',
+  managerEmployee: '/manager/employees/:id',
+  
+  // Admin routes
+  adminDashboard: '/admin',
+  adminManager: '/admin/managers/:id',
+  adminEmployee: '/admin/employees/:id',
+  adminCreateManager: '/admin/create-manager',
+  adminCreateEmployee: '/admin/create-employee',
 }
 

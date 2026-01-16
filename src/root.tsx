@@ -6,6 +6,7 @@ import {
   ScrollRestoration,
 } from "react-router";
 import type { LinksFunction } from "react-router";
+import { AuthProvider } from "src/contexts/AuthContext";
 
 export const links: LinksFunction = () => [
   { rel: "icon", href: "/vite.svg", type: "image/svg+xml" },
@@ -38,5 +39,9 @@ export function Layout({
 }
 
 export default function Root() {
-  return <Outlet />;
+  return (
+    <AuthProvider>
+      <Outlet />
+    </AuthProvider>
+  );
 }
