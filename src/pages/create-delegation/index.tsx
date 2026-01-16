@@ -11,8 +11,7 @@ import { Expense, ExpenseProps } from "../delegations/components/expense";
 import { Dialog, DialogContent, DialogHeader } from "src/components/dialog";
 import { delegationsApi } from "src/lib/api/delegations";
 import type { Dayjs } from "dayjs";
-
-const mockExpenses: ExpenseProps[] = [];
+import { ExpenseDialog } from "./expense-dialog";
 
 const S = {
   Wrapper: styled.section`
@@ -139,6 +138,7 @@ export default function AddDelegationPage() {
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [expenses, setExpenses] = useState<ExpenseProps[]>([]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -219,7 +219,7 @@ export default function AddDelegationPage() {
               </S.Button>
             </S.ExpensesHeadingWrapper>
             <S.ExpenseList>
-              {mockExpenses.map((expense, index) => (
+              {expenses.map((expense, index) => (
                 <li key={index}>
                   <Expense {...expense} />
                 </li>
@@ -230,40 +230,7 @@ export default function AddDelegationPage() {
             {isSubmitting ? 'Tworzenie...' : 'Utwórz delegację'}
           </S.Button>
         </S.Form>
-        <Dialog open={isDialogOpen} onClose={onCloseDialog}>
-          <DialogHeader title="Dodaj wydatek" onClose={onCloseDialog} />
-          <DialogContent>
-            <S.DataGroup>
-              <TextField label="Tytuł" fullWidth />
-              <S.FormGroup>
-                <S.RowTextField label="Kwota" type="number" />
-                <S.RowTextField label="Waluta" />
-              </S.FormGroup>
-              <S.DatePicker label="Data" disableFuture={true} />
-              <TextField label="Opis" multiline rows={4} fullWidth />
-              <S.FileInputWrapper $withGap={!!selectedFile}>
-                <S.FileInputLabel htmlFor="receipt-upload">
-                  Wybierz paragon
-                </S.FileInputLabel>
-                <S.HiddenFileInput
-                  id="receipt-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                />
-                <S.FileWrapper>
-                  {selectedFile && <S.FileName>{selectedFile.name}</S.FileName>}
-                  {selectedFile && (
-                    <S.DeleteReceiptButton onClick={() => setSelectedFile(null)}>
-                      Usuń
-                    </S.DeleteReceiptButton>
-                  )}
-                </S.FileWrapper>
-            </S.FileInputWrapper>
-              <S.Button type="submit" onClick={() => setIsDialogOpen(false)}>Dodaj wydatek</S.Button>
-            </S.DataGroup>
-          </DialogContent>
-        </Dialog>
+        <ExpenseDialog isDialogOpen={isDialogOpen} onCloseDialog={onCloseDialog} />
       </LocalizationProvider>
     </S.Wrapper>
   );

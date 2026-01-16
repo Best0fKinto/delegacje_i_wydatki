@@ -6,6 +6,10 @@ export interface Delegation {
   start_date: string; // YYYY-MM-DD
   end_date: string; // YYYY-MM-DD
   status: string;
+  country?: string;
+  city?: string;
+  name?: string;
+  purpose?: string;
   user_id?: number;
   created_at?: string;
   expenses?: Expense[];

@@ -96,7 +96,7 @@ export default function DelegationsPage() {
           {delegations.map((delegation) => (
             <li key={delegation.id}>
               <Delegation
-                name={`Delegacja #${delegation.id}`}
+                name={delegation.name || `Delegacja #${delegation.id}`}
                 dateFrom={delegation.start_date}
                 dateTo={delegation.end_date}
                 status={mapStatus(delegation.status)}
