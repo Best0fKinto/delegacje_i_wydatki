@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { useEffect, useState } from "react";
 import { colors } from "src/constants/colors";
-import { Delegation, DelegationProps } from "./components/delegation";
+import { Delegation } from "./components/delegation";
 import { delegationsApi } from "src/lib/api/delegations";
 import type { Delegation as DelegationType } from "src/lib/api/delegations";
 
@@ -96,6 +96,7 @@ export default function DelegationsPage() {
           {delegations.map((delegation) => (
             <li key={delegation.id}>
               <Delegation
+                id={delegation.id}
                 name={delegation.name || `Delegacja #${delegation.id}`}
                 dateFrom={delegation.start_date}
                 dateTo={delegation.end_date}

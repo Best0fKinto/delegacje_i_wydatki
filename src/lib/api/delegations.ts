@@ -53,6 +53,10 @@ export interface DeleteDelegationResponse {
   status: 'success';
   message: string;
 }
+export interface GetDelegationResponse {
+  delegation: Delegation;
+  status: 'success';
+}
 
 /**
  * Delegations API module
@@ -73,7 +77,8 @@ export const delegationsApi = {
    * GET /api/delegations/:id
    */
   async getDelegation(id: number): Promise<Delegation> {
-    return apiClient.get<Delegation>(`/delegations/${id}`);
+    const response = await apiClient.get<GetDelegationResponse>(`/delegations/${id}`);
+    return response.delegation;
   },
 
   /**

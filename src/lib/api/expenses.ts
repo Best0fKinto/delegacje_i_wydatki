@@ -1,7 +1,7 @@
 import { apiClient } from '../apiClient';
 
 // Types based on ENDPOINTS.md
-export interface Expense {
+interface Expense {
   id: number;
   amount: number;
   pln_amount: number;
