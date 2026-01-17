@@ -50,6 +50,8 @@ export const DelegationDetailsDialog = ({ delegationId, isOpen, onClose }: Props
   const [delegation, setDelegation] = useState<Delegation | null>(null);
   const isLoading = !delegation;
 
+  const hasExpenses = delegation?.expenses && delegation.expenses.length > 0;
+
   useEffect(() => {
     const fetchDelegationDetails = async () => {
       if (!isOpen) return;
@@ -86,24 +88,22 @@ export const DelegationDetailsDialog = ({ delegationId, isOpen, onClose }: Props
               <S.ItemLabel>Status</S.ItemLabel>
               <span>{delegation.status}</span>
             </S.Item>
-            <S.Item>
+            {delegation.purpose && <S.Item>
               <S.ItemLabel>Cel</S.ItemLabel>
-              <span>{delegation.purpose || 'Brak opisu'}</span>
-            </S.Item>
-            <S.Item>
+              <span>{delegation.purpose}</span>
+            </S.Item>}
+            {delegation.city && <S.Item>
               <S.ItemLabel>Miasto</S.ItemLabel>
               <span>{delegation.city}</span>
-            </S.Item>
-            <S.Item>
+            </S.Item>}
+            {delegation.country && <S.Item>
               <S.ItemLabel>Kraj</S.ItemLabel>
               <span>{delegation.country}</span>
-            </S.Item>
-            <S.ExpensesLabel>Wydatki</S.ExpensesLabel>
-            {delegation?.expenses === undefined ? (
-              <p>Brak wydatków</p>
-            ) : (
+            </S.Item>}
+            {hasExpenses && <>
+              <S.ExpensesLabel>Wydatki</S.ExpensesLabel>
               <S.ExpenseList>
-                {delegation.expenses.map((expense) => (
+                {delegation?.expenses?.map((expense) => (
                   <li key={expense.id}>
                     <Expense
                       title={expense.explanation || 'Brak opisu'}
@@ -114,7 +114,8 @@ export const DelegationDetailsDialog = ({ delegationId, isOpen, onClose }: Props
                   </li>
                 ))}
               </S.ExpenseList>
-            )}
+            </>
+          }
           </>
         )}
       </S.DialogContent>
