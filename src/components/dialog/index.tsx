@@ -68,7 +68,7 @@ export const DialogContent = styled.div`
   box-sizing: border-box;
 `;
 
-export const Dialog = ({ children, open, onClose, className }: DialogProps) => {
+export const Dialog = ({ children, open, onClose }: DialogProps) => {
   return (
     <MUIDialog 
       open={open} 

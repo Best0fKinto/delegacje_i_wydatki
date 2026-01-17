@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { useEffect, useState } from "react";
 import { colors } from "src/constants/colors";
-import { Delegation, DelegationProps } from "./components/delegation";
+import { Delegation } from "./components/delegation";
 import { delegationsApi } from "src/lib/api/delegations";
 import type { Delegation as DelegationType } from "src/lib/api/delegations";
 

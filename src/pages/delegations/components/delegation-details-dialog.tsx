@@ -7,44 +7,6 @@ import { colors } from "src/constants/colors";
 import { Expense } from "./expense";
 import { getCurrencyName } from "src/utils";
 
-// Example response
-// city
-// : 
-// "Wroclaw"
-// country
-// : 
-// "Polska"
-// created_at
-// : 
-// "2026-01-17T09:57:45.061576"
-// documents
-// : 
-// []
-// employee_id
-// : 
-// 5
-// end_date
-// : 
-// "2026-01-16"
-// expenses
-// : 
-// [{amount: "16.00", category_id: 3, delegation_id: 10, explanation: "burgier", id: 16,…},…]
-// id
-// : 
-// 10
-// name
-// : 
-// "first"
-// purpose
-// : 
-// "ni wim"
-// start_date
-// : 
-// "2026-01-08"
-// status
-// : 
-// "draft"
-
 type Props = {
   isOpen: boolean;
   onClose: () => void;
