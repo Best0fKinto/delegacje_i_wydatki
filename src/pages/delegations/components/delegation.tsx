@@ -1,8 +1,11 @@
 import styled from "styled-components";
 import { colors } from "src/constants/colors";
 import { Button } from "src/components/button";
+import { DelegationDetailsDialog } from "./delegation-details-dialog";
+import { useState } from "react";
 
 export type DelegationProps = {
+  id: number;
   name: string;
   dateFrom: string;
   dateTo: string;
@@ -62,7 +65,8 @@ const S = {
   `
 };
 
-export const Delegation = ({ name, dateFrom, dateTo, status }: DelegationProps) => {
+export const Delegation = ({ id, name, dateFrom, dateTo, status }: DelegationProps) => {
+  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   const statusMessage = (() => {
     switch (status) {
       case "Accepted":
@@ -84,8 +88,13 @@ export const Delegation = ({ name, dateFrom, dateTo, status }: DelegationProps) 
       </S.Date>
       <S.BottomWrapper>
         <S.Status $status={status}>{statusMessage}</S.Status>
-        <S.ViewDetailsButton>Zobacz szczegóły</S.ViewDetailsButton>
+        <S.ViewDetailsButton onClick={() => setIsDetailsDialogOpen(true)}>Zobacz szczegóły</S.ViewDetailsButton>
       </S.BottomWrapper>
+      <DelegationDetailsDialog
+        delegationId={id}
+        isOpen={isDetailsDialogOpen}
+        onClose={() => setIsDetailsDialogOpen(false)}
+      />
     </S.Wrapper>
   );
 };

@@ -33,7 +33,7 @@ const S = {
     position: absolute;
     top: 12px;
     right: 12px;
-    background: ${colors.red[0]};
+    background: ${colors.grey[1]};
     color: white;
     border: none;
     border-radius: 50%;

@@ -12,6 +12,7 @@ import { delegationsApi } from "src/lib/api/delegations";
 import type { Dayjs } from "dayjs";
 import { ExpenseDialog } from "./expense-dialog";
 import { ExpenseFormData } from "src/lib/api/delegations";
+import { getCurrencyName } from "src/utils";
 
 const S = {
   Wrapper: styled.section`
@@ -127,16 +128,6 @@ export default function AddDelegationPage() {
 
   const handleRemoveExpense = (index: number) => {
     setExpenses(expenses.filter((_, i) => i !== index));
-  };
-
-  const getCurrencyName = (currencyId: number): string => {
-    const currencies: Record<number, string> = {
-      1: 'PLN',
-      2: 'EUR',
-      3: 'USD',
-      4: 'GBP',
-    };
-    return currencies[currencyId] || 'PLN';
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
