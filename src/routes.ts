@@ -25,6 +25,7 @@ export default [
     layout('./layouts/manager/index.tsx', [
       route(routes.managerDashboard, './pages/manager/index.tsx'),
       route(routes.managerEmployee, './pages/manager/employee/[id]/index.tsx'),
+      route(routes.managerDelegation, './pages/manager/delegation/[id]/index.tsx'),
     ]),
     
     // Admin routes (requires admin role)
@@ -32,6 +33,7 @@ export default [
       route(routes.adminDashboard, './pages/admin/index.tsx'),
       route(routes.adminManager, './pages/admin/manager/[id]/index.tsx'),
       route(routes.adminEmployee, './pages/admin/employee/[id]/index.tsx'),
+      route(routes.adminDelegation, './pages/admin/delegation/[id]/index.tsx'),
       route(routes.adminCreateManager, './pages/admin/create-manager/index.tsx'),
       route(routes.adminCreateEmployee, './pages/admin/create-employee/index.tsx'),
     ]),

@@ -27,11 +27,13 @@ export const routes = {
   // Manager routes
   managerDashboard: '/manager',
   managerEmployee: '/manager/employees/:id',
+  managerDelegation: '/manager/delegations/:id',
   
   // Admin routes
   adminDashboard: '/admin',
   adminManager: '/admin/managers/:id',
   adminEmployee: '/admin/employees/:id',
+  adminDelegation: '/admin/delegations/:id',
   adminCreateManager: '/admin/create-manager',
   adminCreateEmployee: '/admin/create-employee',
 }

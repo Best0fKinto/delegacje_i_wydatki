@@ -1,5 +1,6 @@
 import { apiClient } from '../apiClient';
 import { User } from './auth';
+import type { EmployeeDelegation, DelegationDetailsResponse } from './manager';
 
 // Admin API Types
 export interface CreateManagerRequest {
@@ -32,18 +33,54 @@ export interface ListEmployeesResponse {
   employees: EmployeeResponse[];
 }
 
+export interface ManagerDetailsResponse {
+  status: 'success';
+  manager: EmployeeResponse;
+  employees: EmployeeResponse[];
+}
+
+export interface AdminEmployeeDetailsResponse {
+  status: 'success';
+  employee: EmployeeResponse;
+  delegations: EmployeeDelegation[];
+}
+
 /**
  * Admin API module
  * Handles admin-specific operations
  */
 export const adminApi = {
   /**
-   * Get all managers (users with role='manager')
-   * GET /api/admin/employees (filtered client-side)
+   * Get all managers
+   * GET /api/admin/managers
    */
   async listManagers(): Promise<EmployeeResponse[]> {
-    const response = await apiClient.get<ListEmployeesResponse>('/admin/employees');
-    return response.employees.filter(emp => emp.role === 'manager');
+    const response = await apiClient.get<{ status: 'success'; managers: EmployeeResponse[] }>('/admin/managers');
+    return response.managers;
+  },
+
+  /**
+   * Get manager details with assigned employees
+   * GET /api/admin/managers/:id
+   */
+  async getManagerDetails(managerId: number): Promise<ManagerDetailsResponse> {
+    return apiClient.get<ManagerDetailsResponse>(`/admin/managers/${managerId}`);
+  },
+
+  /**
+   * Get employee details with delegations (admin view)
+   * GET /api/admin/employees/:id
+   */
+  async getEmployeeDetails(employeeId: number): Promise<AdminEmployeeDetailsResponse> {
+    return apiClient.get<AdminEmployeeDetailsResponse>(`/admin/employees/${employeeId}`);
+  },
+
+  /**
+   * Get delegation details (admin view)
+   * GET /api/admin/delegations/:id
+   */
+  async getDelegationDetails(delegationId: number): Promise<DelegationDetailsResponse> {
+    return apiClient.get<DelegationDetailsResponse>(`/admin/delegations/${delegationId}`);
   },
 
   /**

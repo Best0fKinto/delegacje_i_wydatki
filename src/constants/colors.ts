@@ -28,6 +28,7 @@ export const colors = {
   },
   yellow: {
     0: '#FFF3CD',
+    1: '#FFC107',
     2: '#856404',
   },
   white: '#FFFFFF',

@@ -1,8 +1,8 @@
 import styled from "styled-components";
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router";
+import { useParams, useNavigate, useLocation } from "react-router";
 import { colors } from "src/constants/colors";
-import { managerApi, EmployeeDelegation } from "src/lib/api";
+import { managerApi, EmployeeDelegation, EmployeeResponse } from "src/lib/api";
 import { routes } from "src/constants/routes";
 
 const S = {
@@ -58,11 +58,20 @@ const S = {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: ${colors.blue[1]};
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
   `,
   DelegationInfo: styled.div`
     display: flex;
     flex-direction: column;
     gap: 4px;
+    flex: 1;
   `,
   DelegationTitle: styled.h3`
     margin: 0;
@@ -74,21 +83,31 @@ const S = {
     color: ${colors.grey[6]};
     font-size: 14px;
   `,
+  DelegationDestination: styled.p`
+    margin: 4px 0 0 0;
+    color: ${colors.grey[7]};
+    font-size: 13px;
+  `,
+  DelegationActions: styled.div`
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  `,
   DelegationStatus: styled.span<{ status: string }>`
     padding: 6px 12px;
     border-radius: 4px;
     font-size: 14px;
     font-weight: 600;
     background: ${props => {
-      const s = props.status.toLowerCase();
-      if (s === 'approved' || s === 'accepted') return colors.green[0];
-      if (s === 'rejected') return colors.red[0];
+      const s = props.status.toUpperCase();
+      if (s === 'APPROVED') return colors.green[0];
+      if (s === 'REJECTED') return colors.red[0];
       return colors.yellow[0];
     }};
     color: ${props => {
-      const s = props.status.toLowerCase();
-      if (s === 'approved' || s === 'accepted') return colors.green[2];
-      if (s === 'rejected') return colors.red[1];
+      const s = props.status.toUpperCase();
+      if (s === 'APPROVED') return colors.green[2];
+      if (s === 'REJECTED') return colors.red[1];
       return colors.yellow[2];
     }};
   `,
@@ -105,50 +124,62 @@ const S = {
 export default function ManagerEmployeeProfile() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [employee, setEmployee] = useState<EmployeeResponse | null>(null);
   const [delegations, setDelegations] = useState<EmployeeDelegation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const employeeId = id ? parseInt(id, 10) : null;
 
-  useEffect(() => {
+  const fetchEmployeeData = async () => {
     if (!employeeId) {
-      setError('Nieprawidłowy ID pracownika');
+      setError('Invalid employee id');
       setLoading(false);
       return;
     }
 
-    const fetchDelegations = async () => {
-      try {
-        setLoading(true);
-        const data = await managerApi.getEmployeeDelegations(employeeId);
-        setDelegations(data);
-        setError(null);
-      } catch (err: any) {
-        setError(err?.data?.message || 'Nie udało się pobrać delegacji pracownika');
-        console.error('Failed to fetch employee delegations:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+    try {
+      setLoading(true);
+      const data = await managerApi.getEmployeeDetails(employeeId);
+      setEmployee(data.employee);
+      setDelegations(data.delegations);
+      setError(null);
+    } catch (err: any) {
+      setError(err?.data?.message || 'Failed to load employee');
+      console.error('Failed to fetch employee data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchDelegations();
+  useEffect(() => {
+    fetchEmployeeData();
   }, [employeeId]);
+
+  // Refetch danych po powrocie z widoku delegacji
+  useEffect(() => {
+    if (employeeId && !loading) {
+      fetchEmployeeData();
+    }
+  }, [location.key]);
+
+  const handleDelegationClick = (delegationId: number) => {
+    navigate(routes.managerDelegation.replace(':id', delegationId.toString()));
+  };
 
   const handleBack = () => {
     navigate(routes.managerDashboard);
   };
 
-  const employeeName = delegations[0]?.employee_name || `Pracownik #${employeeId}`;
-
   if (loading) {
     return (
       <S.Wrapper>
         <S.Header>
-          <S.BackButton onClick={handleBack}>← Powrót do listy pracowników</S.BackButton>
-          <S.Heading>Profil pracownika</S.Heading>
+          <S.BackButton onClick={handleBack}>← Back to employees</S.BackButton>
+          <S.Heading>Employee profile</S.Heading>
         </S.Header>
-        <S.LoadingMessage>Ładowanie...</S.LoadingMessage>
+        <S.LoadingMessage>Loading…</S.LoadingMessage>
       </S.Wrapper>
     );
   }
@@ -157,8 +188,8 @@ export default function ManagerEmployeeProfile() {
     return (
       <S.Wrapper>
         <S.Header>
-          <S.BackButton onClick={handleBack}>← Powrót do listy pracowników</S.BackButton>
-          <S.Heading>Profil pracownika</S.Heading>
+          <S.BackButton onClick={handleBack}>← Back to employees</S.BackButton>
+          <S.Heading>Employee profile</S.Heading>
         </S.Header>
         <S.ErrorMessage>{error}</S.ErrorMessage>
       </S.Wrapper>
@@ -168,25 +199,40 @@ export default function ManagerEmployeeProfile() {
   return (
     <S.Wrapper>
       <S.Header>
-        <S.BackButton onClick={handleBack}>← Powrót do listy pracowników</S.BackButton>
-        <S.Heading>{employeeName}</S.Heading>
-        <S.Subheading>Delegacje pracownika</S.Subheading>
+        <S.BackButton onClick={handleBack}>← Back to employees</S.BackButton>
+        <S.Heading>
+          {employee ? `${employee.first_name} ${employee.last_name}` : `Employee #${employeeId}`}
+        </S.Heading>
+        {employee && <S.DelegationDates>{employee.email}</S.DelegationDates>}
+        <S.Subheading>Employee delegations</S.Subheading>
       </S.Header>
       {delegations.length === 0 ? (
-        <S.LoadingMessage>Pracownik nie ma żadnych delegacji</S.LoadingMessage>
+        <S.LoadingMessage>This employee has no delegations</S.LoadingMessage>
       ) : (
         <S.DelegationList>
           {delegations.map((delegation) => (
-            <S.DelegationCard key={delegation.id}>
+            <S.DelegationCard 
+              key={delegation.id}
+              onClick={() => handleDelegationClick(delegation.id)}
+            >
               <S.DelegationInfo>
-                <S.DelegationTitle>Delegacja #{delegation.id}</S.DelegationTitle>
+                <S.DelegationTitle>
+                  {delegation.name || `Delegation #${delegation.id}`}
+                </S.DelegationTitle>
                 <S.DelegationDates>
                   {delegation.start_date} - {delegation.end_date}
                 </S.DelegationDates>
+                {(delegation.city || delegation.country) && (
+                  <S.DelegationDestination>
+                    {[delegation.city, delegation.country].filter(Boolean).join(', ')}
+                  </S.DelegationDestination>
+                )}
               </S.DelegationInfo>
-              <S.DelegationStatus status={delegation.status}>
-                {delegation.status}
-              </S.DelegationStatus>
+              <S.DelegationActions>
+                <S.DelegationStatus status={delegation.status}>
+                  {delegation.status.toUpperCase()}
+                </S.DelegationStatus>
+              </S.DelegationActions>
             </S.DelegationCard>
           ))}
         </S.DelegationList>

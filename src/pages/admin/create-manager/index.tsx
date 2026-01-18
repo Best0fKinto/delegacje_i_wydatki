@@ -121,7 +121,15 @@ export default function CreateManagerPage() {
       }, 2000);
     } catch (err: any) {
       console.error("Failed to create manager:", err);
-      setError(err?.data?.message || 'Nie udało się utworzyć menedżera');
+      
+      // Handle duplicate error with field info
+      if (err?.data?.error === 'DUPLICATE') {
+        const field = err?.data?.field || 'unknown';
+        const message = err?.data?.message || 'This value already exists';
+        setError(`${field === 'email' ? 'Email' : 'Nazwa użytkownika'}: ${message}`);
+      } else {
+        setError(err?.data?.message || 'Nie udało się utworzyć menedżera');
+      }
     } finally {
       setIsLoading(false);
     }

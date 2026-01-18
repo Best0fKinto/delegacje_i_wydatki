@@ -148,7 +148,11 @@ export default function AdminDashboard() {
               key={manager.id}
               onClick={() => handleManagerClick(manager.id)}
             >
-              <S.ManagerName>{manager.username}</S.ManagerName>
+              <S.ManagerName>
+                {manager.first_name && manager.last_name 
+                  ? `${manager.first_name} ${manager.last_name}` 
+                  : manager.username}
+              </S.ManagerName>
               <S.ManagerEmail>{manager.email}</S.ManagerEmail>
             </S.ManagerCard>
           ))}

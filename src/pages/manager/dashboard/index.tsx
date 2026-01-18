@@ -74,7 +74,7 @@ export default function ManagerDashboard() {
         setEmployees(data);
         setError(null);
       } catch (err: any) {
-        setError(err?.data?.message || 'Nie udało się pobrać listy pracowników');
+        setError(err?.data?.message || 'Failed to load employees');
         console.error('Failed to fetch employees:', err);
       } finally {
         setLoading(false);
@@ -91,8 +91,8 @@ export default function ManagerDashboard() {
   if (loading) {
     return (
       <S.Wrapper>
-        <S.Heading>Moi Pracownicy</S.Heading>
-        <S.LoadingMessage>Ładowanie...</S.LoadingMessage>
+        <S.Heading>My employees</S.Heading>
+        <S.LoadingMessage>Loading…</S.LoadingMessage>
       </S.Wrapper>
     );
   }
@@ -100,7 +100,7 @@ export default function ManagerDashboard() {
   if (error) {
     return (
       <S.Wrapper>
-        <S.Heading>Moi Pracownicy</S.Heading>
+        <S.Heading>My employees</S.Heading>
         <S.ErrorMessage>{error}</S.ErrorMessage>
       </S.Wrapper>
     );
@@ -108,9 +108,9 @@ export default function ManagerDashboard() {
 
   return (
     <S.Wrapper>
-      <S.Heading>Moi Pracownicy</S.Heading>
+      <S.Heading>My employees</S.Heading>
       {employees.length === 0 ? (
-        <S.LoadingMessage>Brak przypisanych pracowników</S.LoadingMessage>
+        <S.LoadingMessage>No employees assigned</S.LoadingMessage>
       ) : (
         <S.EmployeeList>
           {employees.map((employee) => (
@@ -118,7 +118,9 @@ export default function ManagerDashboard() {
               key={employee.id}
               onClick={() => handleEmployeeClick(employee.id)}
             >
-              <S.EmployeeName>{employee.username}</S.EmployeeName>
+              <S.EmployeeName>
+                {employee.first_name} {employee.last_name}
+              </S.EmployeeName>
               <S.EmployeeEmail>{employee.email}</S.EmployeeEmail>
             </S.EmployeeCard>
           ))}

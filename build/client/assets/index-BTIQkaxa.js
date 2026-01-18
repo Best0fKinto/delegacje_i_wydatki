@@ -1,0 +1,1 @@
+import{w as t,q as o,O as r}from"./chunk-4WY6JWTD-DBnPwoI9.js";import{R as i}from"./RequireRole-D_4-C0G_.js";import"./apiClient-ctOkRHlj.js";import"./routes-Co3Hordx.js";import"./colors-CR5HX9a0.js";import"./AuthContext-DQnsZs3F.js";import"./auth-BtFPvg-z.js";const d=t(function(){return o.jsx(i,{allowedRoles:["admin"],children:o.jsx(r,{})})});export{d as default};

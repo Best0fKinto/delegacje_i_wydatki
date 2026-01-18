@@ -128,25 +128,10 @@ export default function AdminManagerProfile() {
       try {
         setLoading(true);
         
-        // Fetch manager and all employees
-        const [managerData, allEmployees] = await Promise.all([
-          adminApi.getEmployee(managerId),
-          adminApi.listEmployees(),
-        ]);
-
-        if (!managerData) {
-          setError('Nie znaleziono menedżera');
-          setLoading(false);
-          return;
-        }
-
-        setManager(managerData);
+        const data = await adminApi.getManagerDetails(managerId);
         
-        // Filter employees assigned to this manager
-        const assignedEmployees = allEmployees.filter(
-          emp => emp.manager_id === managerId && emp.role === 'employee'
-        );
-        setEmployees(assignedEmployees);
+        setManager(data.manager);
+        setEmployees(data.employees);
         setError(null);
       } catch (err: any) {
         setError(err?.data?.message || 'Nie udało się pobrać danych menedżera');
@@ -195,7 +180,11 @@ export default function AdminManagerProfile() {
     <S.Wrapper>
       <S.Header>
         <S.BackButton onClick={handleBack}>← Powrót do panelu</S.BackButton>
-        <S.Heading>{manager.username}</S.Heading>
+        <S.Heading>
+          {manager.first_name && manager.last_name
+            ? `${manager.first_name} ${manager.last_name}`
+            : manager.username}
+        </S.Heading>
         
         <S.ManagerInfo>
           <S.InfoRow>
@@ -223,7 +212,11 @@ export default function AdminManagerProfile() {
               key={employee.id}
               onClick={() => handleEmployeeClick(employee.id)}
             >
-              <S.EmployeeName>{employee.username}</S.EmployeeName>
+              <S.EmployeeName>
+                {employee.first_name && employee.last_name
+                  ? `${employee.first_name} ${employee.last_name}`
+                  : employee.username}
+              </S.EmployeeName>
               <S.EmployeeEmail>{employee.email}</S.EmployeeEmail>
             </S.EmployeeCard>
           ))}

@@ -3,15 +3,53 @@ import { Delegation } from './delegations';
 import { EmployeeResponse } from './admin';
 
 // Manager API Types
-export interface EmployeeDelegation extends Delegation {
+export interface EmployeeDelegation extends Omit<Delegation, 'status'> {
   employee_id: number;
   employee_name?: string;
   employee_email?: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
 }
 
 export interface ManagerDelegationsResponse {
   status: 'success';
   delegations: EmployeeDelegation[];
+}
+
+export interface ManagerEmployeesResponse {
+  status: 'success';
+  employees: EmployeeResponse[];
+}
+
+export interface ManagerEmployeeDetailsResponse {
+  status: 'success';
+  employee: EmployeeResponse;
+  delegations: EmployeeDelegation[];
+}
+
+export interface DelegationItem {
+  id: number;
+  name: string;
+  amount: number;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  category_id: number;
+  created_at?: string;
+}
+
+export interface DelegationDetailsSummary {
+  total: number;
+  pending: number;
+  approved: number;
+  rejected: number;
+}
+
+export interface DelegationDetailsResponse {
+  status: 'success';
+  delegation: EmployeeDelegation;
+  employee: EmployeeResponse;
+  items: DelegationItem[];
+  summary: DelegationDetailsSummary;
+  pending_items_count: number;
+  total_items_count: number;
 }
 
 /**
@@ -21,27 +59,19 @@ export interface ManagerDelegationsResponse {
 export const managerApi = {
   /**
    * Get all employees assigned to the current manager
-   * Uses /api/manager/delegations and extracts unique employees
+   * GET /api/manager/employees
    */
   async listMyEmployees(): Promise<EmployeeResponse[]> {
-    const response = await apiClient.get<ManagerDelegationsResponse>('/manager/delegations');
-    
-    // Extract unique employees from delegations
-    const employeesMap = new Map<number, EmployeeResponse>();
-    
-    response.delegations.forEach(delegation => {
-      if (delegation.employee_id && !employeesMap.has(delegation.employee_id)) {
-        employeesMap.set(delegation.employee_id, {
-          id: delegation.employee_id,
-          username: delegation.employee_name || '',
-          email: delegation.employee_email || '',
-          role: 'employee',
-          is_active: true,
-        });
-      }
-    });
-    
-    return Array.from(employeesMap.values());
+    const response = await apiClient.get<ManagerEmployeesResponse>('/manager/employees');
+    return response.employees;
+  },
+
+  /**
+   * Get employee details with delegations
+   * GET /api/manager/employees/:id
+   */
+  async getEmployeeDetails(employeeId: number): Promise<ManagerEmployeeDetailsResponse> {
+    return apiClient.get<ManagerEmployeeDetailsResponse>(`/manager/employees/${employeeId}`);
   },
 
   /**
@@ -80,6 +110,54 @@ export const managerApi = {
     return apiClient.post<{ status: 'success'; message: string }>(
       `/manager/delegations/${delegationId}/reject`,
       { reason }
+    );
+  },
+
+  /**
+   * Get delegation details with items (expenses)
+   * GET /api/manager/delegations/:id
+   */
+  async getDelegationDetails(delegationId: number): Promise<DelegationDetailsResponse> {
+    return apiClient.get<DelegationDetailsResponse>(`/manager/delegations/${delegationId}`);
+  },
+
+  /**
+   * Approve a single delegation item (expense)
+   * POST /api/manager/delegations/:delegationId/items/:itemId/approve
+   */
+  async approveItem(delegationId: number, itemId: number): Promise<{ status: 'success'; message: string }> {
+    return apiClient.post<{ status: 'success'; message: string }>(
+      `/manager/delegations/${delegationId}/items/${itemId}/approve`
+    );
+  },
+
+  /**
+   * Reject a single delegation item (expense)
+   * POST /api/manager/delegations/:delegationId/items/:itemId/reject
+   */
+  async rejectItem(delegationId: number, itemId: number): Promise<{ status: 'success'; message: string }> {
+    return apiClient.post<{ status: 'success'; message: string }>(
+      `/manager/delegations/${delegationId}/items/${itemId}/reject`
+    );
+  },
+
+  /**
+   * Approve all pending items in delegation
+   * POST /api/manager/delegations/:delegationId/items/approve_all
+   */
+  async approveAllItems(delegationId: number): Promise<{ status: 'success'; message: string; count: number }> {
+    return apiClient.post<{ status: 'success'; message: string; count: number }>(
+      `/manager/delegations/${delegationId}/items/approve_all`
+    );
+  },
+
+  /**
+   * Reject all pending items in delegation
+   * POST /api/manager/delegations/:delegationId/items/reject_all
+   */
+  async rejectAllItems(delegationId: number): Promise<{ status: 'success'; message: string; count: number }> {
+    return apiClient.post<{ status: 'success'; message: string; count: number }>(
+      `/manager/delegations/${delegationId}/items/reject_all`
     );
   },
 };
